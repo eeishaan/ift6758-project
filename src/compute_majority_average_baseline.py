@@ -1,10 +1,9 @@
 import pandas as pd
 import argparse
 from collections import Counter
-from utils.dataset_utils import age_to_age_group
 import json
 
-from utils.dataset_utils import gender_id_to_name
+from utils.dataset import gender_id_to_name, age_to_age_group
 
 
 def compute_most_frequent(labels):
