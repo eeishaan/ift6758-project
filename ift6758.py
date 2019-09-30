@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import json
 import os
 
@@ -6,7 +7,7 @@ import argparse
 import xml.etree.ElementTree as ET
 
 majority_average_dataset_info_path \
-    = "../data/majority_average_dataset_info.json"
+    = "mappings/majority_average_dataset_info.json"
 
 TEAM_NAME = "user17"
 

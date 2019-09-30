@@ -63,7 +63,7 @@ def compute_majority_average_baseline(profile_data_path, output_results_path=Non
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--profile_data_path', type=str, default=None,
-                        help='Profile data path')
+                        help='Profile mappings path')
     parser.add_argument('--output_results_path', type=str, default=None,
                         help='Output json results path')
     args = parser.parse_args()
