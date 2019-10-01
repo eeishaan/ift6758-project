@@ -1,5 +1,6 @@
 from sklearn.dummy import DummyRegressor, DummyClassifier
 
+
 class MajorityClassifier:
     def __init__(self):
         self.clf = DummyClassifier(strategy='most_frequent')
@@ -9,8 +10,9 @@ class MajorityClassifier:
         self.clf.fit(X, y)
 
     def predict(self, X):
-        X = X['user_id']
+        X = X['userid']
         return self.clf.predict(X)
+
 
 class MeanRegressor:
     def __init__(self):
@@ -21,5 +23,5 @@ class MeanRegressor:
         self.reg.fit(X, y)
 
     def predict(self, X):
-        X = X['user_id']
+        X = X['userid']
         return self.reg.predict(X)
