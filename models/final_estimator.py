@@ -35,3 +35,5 @@ class SingleTaskEstimator:
         pred_df['ext'] = self.ext_reg.predict(X)
         pred_df['agr'] = self.agr_reg.predict(X)
         pred_df['neu'] = self.neu_reg.predict(X)
+
+        return pred_df
