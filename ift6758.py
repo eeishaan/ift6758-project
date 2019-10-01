@@ -13,8 +13,8 @@ TEAM_NAME = "user17"
 
 
 def evaluate(test_data_dir, results_output_dir):
-    if os.path.isdir(results_output_dir) is False:
-        os.mkdir(results_output_dir)
+    os.makedirs(results_output_dir, exist_ok=True)
+
 
     with open(majority_average_dataset_info_path, "r") as f:
         majority_average_dataset_info = json.load(f)
