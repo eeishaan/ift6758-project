@@ -1,8 +1,22 @@
 import pandas as pd
 from sklearn.externals import joblib
+import abc
 
+class BaseEstimator(abc.ABC):
 
-class SingleTaskEstimator:
+    @abc.abstractmethod
+    def fit(self, X, y):
+        pass
+
+    @abc.abstractmethod
+    def predict(self, X):
+        pass
+
+    @abc.abstractmethod
+    def save(self,output_path):
+        pass
+
+class SingleTaskEstimator(BaseEstimator):
     def __init__(self, gender_clf, age_clf, ope_reg, con_reg, ext_reg, agr_reg, neu_reg):
         # Independent task models
         self.neu_reg = neu_reg
