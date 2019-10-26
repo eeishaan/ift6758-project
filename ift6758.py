@@ -1,12 +1,13 @@
 #!/usr/bin/env python
+import argparse
 import json
 import os
-from sklearn.externals import joblib
-from utils.data_processing import parse_output
+import xml.etree.ElementTree as ET
 
 import pandas as pd
-import argparse
-import xml.etree.ElementTree as ET
+from sklearn.externals import joblib
+
+from utils.data_processing import parse_input, parse_output
 
 model_path = "trained_models/baseline.pkl"
 TEAM_NAME = "user17"
@@ -16,7 +17,7 @@ def evaluate(test_data_dir, results_output_dir):
     os.makedirs(results_output_dir, exist_ok=True)
     model = joblib.load(model_path)
 
-    test_data = pd.read_csv(os.path.join(test_data_dir, "Profile/Profile.csv"))
+    test_data = parse_input(test_data_dir, is_train=False)
     pred_df = model.predict(test_data)
     pred_df = parse_output(pred_df)
 
@@ -26,7 +27,8 @@ def evaluate(test_data_dir, results_output_dir):
         pred.update(dict(pred_df.loc[user_data['userid']]))
         users_root = ET.Element('user', attrib=pred)
         xml_string_data = ET.tostring(users_root, encoding="unicode")
-        xml_file = open(os.path.join(results_output_dir, "{}.xml".format(user_data["userid"])), "w")
+        xml_file = open(os.path.join(results_output_dir,
+                                     "{}.xml".format(user_data["userid"])), "w")
         xml_file.write(xml_string_data)
 
 
