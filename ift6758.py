@@ -21,14 +21,14 @@ def evaluate(test_data_dir, results_output_dir):
     pred_df = model.predict(test_data)
     pred_df = parse_output(pred_df)
 
-    for index, user_data in test_data.iterrows():
+    for _, user_id in test_data['user_id'].iteritems():
         pred = {}
-        pred["id"] = str(user_data["userid"])
-        pred.update(dict(pred_df.loc[user_data['userid']]))
+        pred["id"] = str(user_id)
+        pred.update(dict(pred_df.loc[user_id]))
         users_root = ET.Element('user', attrib=pred)
         xml_string_data = ET.tostring(users_root, encoding="unicode")
         xml_file = open(os.path.join(results_output_dir,
-                                     "{}.xml".format(user_data["userid"])), "w")
+                                     "{}.xml".format(user_id)), "w")
         xml_file.write(xml_string_data)
 
 
