@@ -1,6 +1,8 @@
+import abc
+
 import pandas as pd
 from sklearn.externals import joblib
-import abc
+
 
 class BaseEstimator(abc.ABC):
 
@@ -13,8 +15,9 @@ class BaseEstimator(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def save(self,output_path):
+    def save(self, output_path):
         pass
+
 
 class SingleTaskEstimator(BaseEstimator):
     def __init__(self, gender_clf, age_clf, ope_reg, con_reg, ext_reg, agr_reg, neu_reg):
@@ -29,7 +32,7 @@ class SingleTaskEstimator(BaseEstimator):
 
     def fit(self, X, y):
         self.age_clf.fit(X, y['age'])
-        self.gender_clf.fit(X, y['gender'])
+        self.gender_clf.fit(X['image'], y['gender'])
 
         self.ope_reg.fit(X, y['ope'])
         self.con_reg.fit(X, y['con'])
@@ -38,10 +41,11 @@ class SingleTaskEstimator(BaseEstimator):
         self.neu_reg.fit(X, y['neu'])
 
     def predict(self, X):
-        pred_df = pd.DataFrame(index=X['userid'], columns=['age', 'gender', 'ope', 'con', 'ext', 'agr', 'neu'])
+        pred_df = pd.DataFrame(index=X['userid'], columns=[
+                               'age', 'gender', 'ope', 'con', 'ext', 'agr', 'neu'])
 
         pred_df['age'] = self.age_clf.predict(X)
-        pred_df['gender'] = self.gender_clf.predict(X)
+        pred_df['gender'] = self.gender_clf.predict(X['image'])
 
         pred_df['ope'] = self.ope_reg.predict(X)
         pred_df['con'] = self.con_reg.predict(X)
