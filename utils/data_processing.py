@@ -61,8 +61,7 @@ def parse_image_data(image_file, profile_data, is_train):
 
         if faces.size == 0:
             # Add a row full of None for test data so that we don't miss out some profiles
-            row_data = pd.DataFrame(
-                [[None]*len(image_cols)], columns=image_cols)
+            row_data = pd.Series([None]*len(image_cols), index=image_cols)
         else:
             # randomly choose the first row for train data when there are multiple faces
             row_data = faces.iloc[0]
@@ -70,6 +69,7 @@ def parse_image_data(image_file, profile_data, is_train):
         X.append(row_data.drop(labels=id_col))
         if is_train:
             y.append(row.gender)
+    X = pd.DataFrame(X)
     if is_train:
         return (X, y)
     return (X,)
@@ -110,7 +110,7 @@ def parse_input(root, is_train=True):
 
 def parse_output(pred_df):
     pred_df['gender'] = pred_df['gender'].apply(lambda x: gender_id_to_name(x))
-    pred_df['age'] = pred_df['age'].apply(lambda x: age_to_age_group(x))
+    pred_df['age'] = pred_df['age']
     pred_df['ope'] = pred_df['ope'].apply(lambda x: str(x))
     pred_df['con'] = pred_df['con'].apply(lambda x: str(x))
     pred_df['ext'] = pred_df['ext'].apply(lambda x: str(x))
