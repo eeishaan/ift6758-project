@@ -79,7 +79,7 @@ def parse_input(root, is_train=True):
     profile_data = pd.read_csv(os.path.join(
         root, 'Profile/Profile.csv')).drop('Unnamed: 0', axis=1)
 
-    image_file = os.path.join(root, 'Image', 'profile.csv')
+    image_file = os.path.join(root, 'Image', 'oxford.csv')
     image_data = parse_image_data(image_file, profile_data, is_train)
 
     text_root = parse_text_data(os.path.join(root, 'Text'))
