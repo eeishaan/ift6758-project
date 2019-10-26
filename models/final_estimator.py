@@ -41,7 +41,7 @@ class SingleTaskEstimator(BaseEstimator):
         self.neu_reg.fit(X, y['neu'])
 
     def predict(self, X):
-        pred_df = pd.DataFrame(index=X['userid'], columns=[
+        pred_df = pd.DataFrame(index=X['user_id'], columns=[
                                'age', 'gender', 'ope', 'con', 'ext', 'agr', 'neu'])
 
         pred_df['age'] = self.age_clf.predict(X)

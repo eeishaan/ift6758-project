@@ -10,7 +10,7 @@ class MajorityClassifier:
         self.clf.fit(X, y)
 
     def predict(self, X):
-        X = X['userid']
+        X = X['user_id']
         return self.clf.predict(X)
 
 
@@ -23,5 +23,5 @@ class MeanRegressor:
         self.reg.fit(X, y)
 
     def predict(self, X):
-        X = X['userid']
+        X = X['user_id']
         return self.reg.predict(X)
