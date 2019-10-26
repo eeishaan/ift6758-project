@@ -48,8 +48,14 @@ class TreeEnsembleEstimator(BaseEstimator):
         return self
 
     def predict(self, X):
-        X_pred = self._process(X)
-        return self.clf.predict(X_pred)
+        # if row contains null, we predict 1
+        pred = np.ones(shape=(len(X)))
+
+        # filter out non-null rows
+        non_null_rows = X.notnull().all(axis=1)
+        filtered_X = X[non_null_rows]
+        X_pred = self._process(filtered_X)
+        pred[non_null_rows] = self.clf.predict(X_pred)
 
     def save(self, output_path):
         joblib.dump(self, output_path)
