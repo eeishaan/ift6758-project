@@ -3,14 +3,32 @@ import os
 import sys
 
 sys.path.append('../')  # TODO fix these imports properly
-from models.final_estimator import SingleTaskEstimator
 from models.baselines import MajorityClassifier, MeanRegressor
+from models.final_estimator import SingleTaskEstimator
+from models.gender_estimator import TreeEnsembleEstimator
 from utils.data_processing import parse_input
 
+
+
 MODEL_MAPPING = {
-    'baseline': SingleTaskEstimator(age_clf=MajorityClassifier(), gender_clf=MajorityClassifier(),
-                                    ope_reg=MeanRegressor(), con_reg=MeanRegressor(),
-                                    ext_reg=MeanRegressor(), agr_reg=MeanRegressor(), neu_reg=MeanRegressor())
+    'baseline': SingleTaskEstimator(
+        age_clf=MajorityClassifier(),
+        gender_clf=MajorityClassifier(),
+        ope_reg=MeanRegressor(),
+        con_reg=MeanRegressor(),
+        ext_reg=MeanRegressor(),
+        agr_reg=MeanRegressor(),
+        neu_reg=MeanRegressor()
+    ),
+    'gender_only': SingleTaskEstimator(
+        age_clf=MajorityClassifier(),
+        gender_clf=TreeEnsembleEstimator(),
+        ope_reg=MeanRegressor(),
+        con_reg=MeanRegressor(),
+        ext_reg=MeanRegressor(),
+        agr_reg=MeanRegressor(),
+        neu_reg=MeanRegressor()
+    ),
 }
 
 
