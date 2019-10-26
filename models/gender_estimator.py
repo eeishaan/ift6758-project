@@ -57,5 +57,7 @@ class TreeEnsembleEstimator(BaseEstimator):
         X_pred = self._process(filtered_X)
         pred[non_null_rows] = self.clf.predict(X_pred)
 
+        return pred
+
     def save(self, output_path):
         joblib.dump(self, output_path)
