@@ -20,7 +20,7 @@ class TreeEnsembleEstimator(BaseEstimator):
             estimators=[
                 ('a', RandomForestClassifier(n_estimators=50)),
                 ('b', ExtraTreesClassifier(n_estimators=50)),
-                ('c', GradientBoostingClassifier(n_estimators=50))],
+                ('c', GradientBoostingClassifier(n_estimators=100))],
             weights=(1, 1, 2),
             voting='hard',
             n_jobs=4
