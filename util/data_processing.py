@@ -1,8 +1,37 @@
 import os
 
 import pandas as pd
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
 
-from .label_mappings import *
+from util.label_mapping import age_to_age_group, gender_id_to_name
+
+
+def remove_empty_data(input_data, profile_data):
+    filtered_images = input_data[input_data.userId.isin(profile_data.userid)]
+    non_empty = filtered_images.dropna()
+    summary = non_empty.describe()
+    # iterate and find columns where min, max and mean are all same
+    irrelevant_columns = []
+    for c in summary.columns:
+        col_stats = summary[c]
+        if col_stats['min'] == col_stats['mean'] or col_stats['max'] == col_stats['mean']:
+            irrelevant_columns.append(c)
+    non_empty.drop(labels=irrelevant_columns, axis=1, inplace=True)
+    return non_empty
+
+
+def normalize_splits(X_train, X_test):
+    # standardize train
+    X_std_train, standard_scalers = preprocess(X_train, StandardScaler)
+    # normalize train
+    X_norm_train, norm_scalers = preprocess(X_std_train, MinMaxScaler)
+
+    # standardize test
+    X_std_test, _ = preprocess(X_test, StandardScaler, standard_scalers)
+    # normalize test
+    X_norm_test, _ = preprocess(X_std_test, MinMaxScaler, norm_scalers)
+
+    return X_norm_train, X_norm_test
 
 
 def preprocess(df, scaler_type, scalers=None):
@@ -61,7 +90,7 @@ def parse_image_data(image_file, profile_data, is_train):
 
         if faces.size == 0:
             # Add a row full of None for test data so that we don't miss out some profiles
-            row_data = pd.Series([None]*len(image_cols), index=image_cols)
+            row_data = pd.Series([None] * len(image_cols), index=image_cols)
         else:
             # randomly choose the first row for train data when there are multiple faces
             row_data = faces.iloc[0]

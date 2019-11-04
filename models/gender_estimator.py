@@ -9,7 +9,7 @@ from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
 sys.path.append('../')  # TODO fix these imports properly
 from models.final_estimator import BaseEstimator
-from utils.data_processing import preprocess
+from util.data_processing import preprocess
 
 
 

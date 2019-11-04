@@ -3,7 +3,7 @@ import argparse
 from collections import Counter
 import json
 
-from utils.label_mappings import gender_id_to_name, age_to_age_group
+from util.label_mappings import gender_id_to_name, age_to_age_group
 
 
 def compute_most_frequent(labels):

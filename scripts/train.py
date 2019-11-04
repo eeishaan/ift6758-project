@@ -1,13 +1,11 @@
 import argparse
 import os
-import sys
 
-sys.path.append('../')  # TODO fix these imports properly
-from models.baselines import MajorityClassifier, MeanRegressor
 from models.final_estimator import SingleTaskEstimator
 from models.gender_estimator import TreeEnsembleEstimator
-from utils.data_processing import parse_input
+from util.data_processing import parse_input
 
+from models.baseline import MajorityClassifier, MeanRegressor
 
 
 MODEL_MAPPING = {
@@ -22,6 +20,15 @@ MODEL_MAPPING = {
     ),
     'gender_only': SingleTaskEstimator(
         age_clf=MajorityClassifier(),
+        gender_clf=TreeEnsembleEstimator(),
+        ope_reg=MeanRegressor(),
+        con_reg=MeanRegressor(),
+        ext_reg=MeanRegressor(),
+        agr_reg=MeanRegressor(),
+        neu_reg=MeanRegressor()
+    ),
+    'age_and_gender': SingleTaskEstimator(
+        age_clf=TreeEnsembleEstimator(),
         gender_clf=TreeEnsembleEstimator(),
         ope_reg=MeanRegressor(),
         con_reg=MeanRegressor(),
