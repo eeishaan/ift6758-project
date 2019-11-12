@@ -31,8 +31,17 @@ def preprocess(df, scaler_type, scalers=None):
 
 
 def parse_text_data(root):
-    # TODO
-    return None
+    text_data_liwc = pd.read_csv(os.path.join(root, "Text", "liwc.csv"))
+    text_data_liwc.columns = text_data_liwc.columns.str.lower()
+    text_data_nrc = pd.read_csv(os.path.join(root, "Text", "nrc.csv"))
+    text_data_nrc.columns = text_data_nrc.columns.str.lower()
+
+    # Merge feature sources and drop nans
+    text_data = pd.merge(left=text_data_liwc, right=text_data_nrc, on='userid')
+    text_data = text_data.drop(columns=['userid'])
+    text_data.fillna(dict(text_data.mean(axis=0)), inplace=True)
+
+    return text_data
 
 
 def parse_relational_data(relation_file):

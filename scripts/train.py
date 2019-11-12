@@ -6,6 +6,7 @@ sys.path.append('../')  # TODO fix these imports properly
 from models.baselines import MajorityClassifier, MeanRegressor
 from models.final_estimator import SingleTaskEstimator
 from models.gender_estimator import TreeEnsembleEstimator
+from models.personality_estimators import PersonalityTreeRegressor
 from utils.data_processing import parse_input
 
 
@@ -29,6 +30,15 @@ MODEL_MAPPING = {
         agr_reg=MeanRegressor(),
         neu_reg=MeanRegressor()
     ),
+    'personality_baseline': SingleTaskEstimator(
+        age_clf=MajorityClassifier(),
+        gender_clf=TreeEnsembleEstimator(),
+        ope_reg=PersonalityTreeRegressor(),
+        con_reg=PersonalityTreeRegressor(),
+        ext_reg=PersonalityTreeRegressor(),
+        agr_reg=PersonalityTreeRegressor(),
+        neu_reg=PersonalityTreeRegressor()
+    )
 }
 
 

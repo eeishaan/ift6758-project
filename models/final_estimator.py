@@ -14,9 +14,8 @@ class BaseEstimator(abc.ABC):
     def predict(self, X):
         pass
 
-    @abc.abstractmethod
     def save(self, output_path):
-        pass
+        joblib.dump(self, output_path)
 
 
 class SingleTaskEstimator(BaseEstimator):
