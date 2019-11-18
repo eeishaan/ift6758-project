@@ -91,8 +91,7 @@ def parse_input(root, is_train=True):
     image_file = os.path.join(root, 'Image', 'oxford.csv')
     image_data = parse_image_data(image_file, profile_data, is_train)
 
-    text_root = parse_text_data(os.path.join(root, 'Text'))
-    text_data = parse_text_data(text_root)
+    text_data = parse_text_data(root)
 
     relational_file = os.path.join(root, 'Relation', 'Relation.csv')
     relational_data = parse_relational_data(relational_file)
