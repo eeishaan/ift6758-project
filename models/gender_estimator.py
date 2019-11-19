@@ -43,6 +43,7 @@ class TreeEnsembleEstimator(BaseEstimator):
         return X_norm_train
 
     def fit(self, X, y=None):
+        X = X['image']
         X_train = self._process(X, is_train=True)
         self.clf.fit(X_train, y)
         return self

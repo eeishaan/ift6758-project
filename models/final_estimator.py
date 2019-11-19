@@ -31,7 +31,7 @@ class SingleTaskEstimator(BaseEstimator):
 
     def fit(self, X, y):
         self.age_clf.fit(X, y['age'])
-        self.gender_clf.fit(X['image'], y['gender'])
+        self.gender_clf.fit(X, y['gender'])
 
         self.ope_reg.fit(X, y['ope'])
         self.con_reg.fit(X, y['con'])

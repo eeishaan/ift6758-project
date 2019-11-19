@@ -10,6 +10,7 @@ class PersonalityTreeRegressor(BaseEstimator):
         self.model = make_pipeline(StandardScaler(), RandomForestRegressor(n_estimators=n_estimators))
     
     def fit(self, X, y):
+        X = X['text']
         self.model.fit(X, y)
 
     def predict(self, X):
