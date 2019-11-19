@@ -46,7 +46,7 @@ class SingleTaskEstimator(BaseEstimator):
                                'age', 'gender', 'ope', 'con', 'ext', 'agr', 'neu'])
 
         pred_df['age'] = self.age_clf.predict(X)
-        pred_df['gender'] = self.gender_clf.predict(X['image'])
+        pred_df['gender'] = self.gender_clf.predict(X)
 
         pred_df['ope'] = self.ope_reg.predict(X)
         pred_df['con'] = self.con_reg.predict(X)

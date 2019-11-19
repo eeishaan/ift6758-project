@@ -46,10 +46,12 @@ MODEL_MAPPING = {
 }
 
 
-def train(input_path, output_path, model_name, model_eval):
+def train(input_path, output_path, model_name, model_eval, debug_mode):
 
     os.makedirs(output_path, exist_ok=True)
     X, y = parse_input(input_path)
+    if debug_mode:
+        X,y = X[:50], y[:50]
     model = MODEL_MAPPING[model_name]
 
     if model_eval:
@@ -71,5 +73,7 @@ if __name__ == '__main__':
                         help='Specify which model to train')
     parser.add_argument('--model_eval', type=bool, default=False,
                         help='Whether or not evaluate model on train/test split. False by default. Model will not be saved if set.')
+    parser.add_argument('--debug_mode', type=bool, default=False,
+                        help='Use only 50 samples for testing purposes.')
     args = parser.parse_args()
-    train(args.input_path, args.output_results_path, args.model, args.model_eval)
+    train(args.input_path, args.output_results_path, args.model, args.model_eval, args.debug_mode)
