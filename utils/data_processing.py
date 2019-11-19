@@ -75,10 +75,11 @@ def parse_image_data(image_file, profile_data, is_train):
             # randomly choose the first row for train data when there are multiple faces
             row_data = faces.iloc[0]
 
-        X.append(row_data.drop(labels=id_col))
+        X.append(row_data)
         if is_train:
             y.append(row.gender)
     X = pd.DataFrame(X)
+    X = X.drop(labels=id_col)
     if is_train:
         return (X, y)
     return (X,)

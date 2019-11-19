@@ -2,6 +2,7 @@ import abc
 
 import pandas as pd
 from sklearn.externals import joblib
+from utils.scoring import *
 
 
 class BaseEstimator(abc.ABC):
@@ -16,6 +17,7 @@ class BaseEstimator(abc.ABC):
 
     def save(self, output_path):
         joblib.dump(self, output_path)
+
 
 
 class SingleTaskEstimator(BaseEstimator):
@@ -53,6 +55,34 @@ class SingleTaskEstimator(BaseEstimator):
         pred_df['neu'] = self.neu_reg.predict(X)
 
         return pred_df
+
+    def eval(self, Xtest, ytest, save=False):
+        ypred = self.predict(Xtest)
+        eval_results = {
+            'age' : age_score(ypred['age'], ytest['age']),
+            'gender' : gender_score(ypred['gender'], ytest['gender']),
+            'ope': personality_score(ypred['ope'], ytest['ope']),
+            'con': personality_score(ypred['con'], ytest['con']),
+            'ext': personality_score(ypred['ext'], ytest['ext']),
+            'agr': personality_score(ypred['agr'], ytest['agr']),
+            'neu': personality_score(ypred['neu'], ytest['neu'])
+        }
+        if save:
+            pd.to_pickle('evaluation_results.pkl', eval_results)
+
+        print("The age accuracy is: {}\n \
+              The gender accuracy is: {}\n \
+              The ope mse is: {}\n)\
+              The con mse is: {}\n)\
+              The ext mse is: {}\n)\
+              The agr mse is: {}\n)\
+              The neu mse is: {}\n".format(eval_results['age'],
+                                           eval_results['gender'],
+                                           eval_results['ope'],
+                                           eval_results['con'],
+                                           eval_results['ext'],
+                                           eval_results['agr'],
+                                           eval_results['neu'],))
 
     def save(self, output_path):
         joblib.dump(self, output_path)

@@ -7,6 +7,7 @@ from models.baselines import MajorityClassifier, MeanRegressor
 from models.final_estimator import SingleTaskEstimator
 from models.gender_estimator import TreeEnsembleEstimator
 from models.personality_estimators import PersonalityTreeRegressor
+from sklearn.model_selection import train_test_split
 from utils.data_processing import parse_input
 
 
@@ -42,13 +43,19 @@ MODEL_MAPPING = {
 }
 
 
-def train(input_path, output_path, model_name):
+def train(input_path, output_path, model_name, model_eval):
+
     os.makedirs(output_path, exist_ok=True)
     X, y = parse_input(input_path)
     model = MODEL_MAPPING[model_name]
 
-    model.fit(X, y)
-    model.save(os.path.join(output_path, model_name + '.pkl'))
+    if model_eval:
+        Xtrain, Xtest, ytrain, ytest = train_test_split(X,y, test_size=0.2)
+        model.fit(Xtrain, ytrain)
+        model.eval(Xtest, ytest)
+    else:
+        model.fit(X, y)
+        model.save(os.path.join(output_path, model_name + '.pkl'))
 
 
 if __name__ == '__main__':
@@ -59,5 +66,7 @@ if __name__ == '__main__':
                         help='Output dir for trained model')
     parser.add_argument('--model', type=str, default='baseline',
                         help='Specify which model to train')
+    parser.add_argument('--model_eval', type=bool, default=False,
+                        help='Whether or not evaluate model on train/test split. False by default. Model will not be saved if set.')
     args = parser.parse_args()
-    train(args.input_path, args.output_results_path, args.model)
+    train(args.input_path, args.output_results_path, args.model, args.model_eval)
