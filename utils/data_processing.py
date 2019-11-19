@@ -116,4 +116,13 @@ def parse_output(pred_df):
     pred_df['ext'] = pred_df['ext'].apply(lambda x: str(x))
     pred_df['agr'] = pred_df['agr'].apply(lambda x: str(x))
     pred_df['neu'] = pred_df['neu'].apply(lambda x: str(x))
+    pred_df = pred_df.rename(
+        columns={
+            "age": "age_group",
+            "ope": "open",
+            "con": "conscientious",
+            "ext": "extrovert",
+            "agr": "agreeable",
+            "neu": "neurotic"
+        })
     return pred_df
