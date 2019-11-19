@@ -68,7 +68,7 @@ class SingleTaskEstimator(BaseEstimator):
             'neu': personality_score(ypred['neu'], ytest['neu'])
         }
         if save:
-            pd.to_pickle('evaluation_results.pkl', eval_results)
+            pd.to_pickle(eval_results, 'evaluation_results.pkl')
 
         print("The age accuracy is: {}\n \
               The gender accuracy is: {}\n \
