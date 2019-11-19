@@ -10,8 +10,6 @@ from models.personality_estimators import PersonalityTreeRegressor
 from sklearn.model_selection import train_test_split
 from utils.data_processing import parse_input, split_data
 
-# TODO: Make data splitter
-# TODO: Make model evaluation function
 # TODO: Make a model selection script
 # TODO: Implement custom transformers for image, text, relational data (i.e. modularize notebook code
 
