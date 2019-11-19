@@ -127,7 +127,7 @@ def split_data(X,y, split=0.2):
     train_ix, test_ix = train_test_split(X['user_id'].index, test_size=split)
     X_image_train, X_image_test = X['image'].iloc[train_ix], X['image'].iloc[test_ix]
     X_text_train,X_text_test = X['text'].iloc[train_ix], X['text'].iloc[test_ix]
-    X_rel_train,X_rel_test = X['relation'].iloc[train_ix], X['relation'].iloc[test_ix]
+    X_rel_train,X_rel_test = None, None #X['relation'].iloc[train_ix], X['relation'].iloc[test_ix] # TODO: relational data
     X_prof_train, X_prof_test = X['user_id'].iloc[train_ix], X['user_id'].iloc[test_ix]
     ytrain, ytest = y.iloc[train_ix], y.iloc[test_ix]
 
