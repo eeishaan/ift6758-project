@@ -8,9 +8,12 @@ from models.final_estimator import SingleTaskEstimator
 from models.gender_estimator import TreeEnsembleEstimator
 from models.personality_estimators import PersonalityTreeRegressor
 from sklearn.model_selection import train_test_split
-from utils.data_processing import parse_input
+from utils.data_processing import parse_input, split_data
 
-
+# TODO: Make data splitter
+# TODO: Make model evaluation function
+# TODO: Make a model selection script
+# TODO: Implement custom transformers for image, text, relational data (i.e. modularize notebook code
 
 MODEL_MAPPING = {
     'baseline': SingleTaskEstimator(
@@ -50,7 +53,7 @@ def train(input_path, output_path, model_name, model_eval):
     model = MODEL_MAPPING[model_name]
 
     if model_eval:
-        Xtrain, Xtest, ytrain, ytest = train_test_split(X,y, test_size=0.2)
+        Xtrain, Xtest, ytrain, ytest = split_data(X,y)
         model.fit(Xtrain, ytrain)
         model.eval(Xtest, ytest)
     else:

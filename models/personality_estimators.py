@@ -14,6 +14,7 @@ class PersonalityTreeRegressor(BaseEstimator):
         self.model.fit(X, y)
 
     def predict(self, X):
-        return self.predict(X)
+        X = X['text']
+        return self.model.predict(X)
 
 
