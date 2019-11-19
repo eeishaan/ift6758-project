@@ -10,7 +10,7 @@ from sklearn.externals import joblib
 
 from utils.data_processing import parse_input, parse_output
 
-model_path = "trained_models/gender_only.pkl"
+model_path = "trained_models/personality_baseline.pkl"
 TEAM_NAME = "user17"
 
 
