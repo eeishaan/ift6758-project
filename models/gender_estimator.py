@@ -33,7 +33,7 @@ class TreeEnsembleEstimator(BaseEstimator):
 
         # filter out non-null rows
         non_null_rows = X.notnull().all(axis=1)
-        X, y = X[non_null_rows], y[non_null_rows]
+        X, y = X[non_null_rows.values], y[non_null_rows.values]
 
         self.clf.fit(X, y)
         return self
