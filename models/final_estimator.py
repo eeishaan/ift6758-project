@@ -2,6 +2,7 @@ import abc
 
 import pandas as pd
 from sklearn.externals import joblib
+from utils.scoring import *
 
 
 class BaseEstimator(abc.ABC):
@@ -14,9 +15,9 @@ class BaseEstimator(abc.ABC):
     def predict(self, X):
         pass
 
-    @abc.abstractmethod
     def save(self, output_path):
-        pass
+        joblib.dump(self, output_path)
+
 
 
 class SingleTaskEstimator(BaseEstimator):
@@ -32,7 +33,7 @@ class SingleTaskEstimator(BaseEstimator):
 
     def fit(self, X, y):
         self.age_clf.fit(X, y['age'])
-        self.gender_clf.fit(X['image'], y['gender'])
+        self.gender_clf.fit(X, y['gender'])
 
         self.ope_reg.fit(X, y['ope'])
         self.con_reg.fit(X, y['con'])
@@ -45,7 +46,7 @@ class SingleTaskEstimator(BaseEstimator):
                                'age', 'gender', 'ope', 'con', 'ext', 'agr', 'neu'])
 
         pred_df['age'] = self.age_clf.predict(X)
-        pred_df['gender'] = self.gender_clf.predict(X['image'])
+        pred_df['gender'] = self.gender_clf.predict(X)
 
         pred_df['ope'] = self.ope_reg.predict(X)
         pred_df['con'] = self.con_reg.predict(X)
@@ -54,6 +55,34 @@ class SingleTaskEstimator(BaseEstimator):
         pred_df['neu'] = self.neu_reg.predict(X)
 
         return pred_df
+
+    def eval(self, Xtest, ytest, save=False):
+        ypred = self.predict(Xtest)
+        eval_results = {
+            'age' : age_score(ypred['age'], ytest['age']),
+            'gender' : gender_score(ypred['gender'], ytest['gender']),
+            'ope': personality_score(ypred['ope'], ytest['ope']),
+            'con': personality_score(ypred['con'], ytest['con']),
+            'ext': personality_score(ypred['ext'], ytest['ext']),
+            'agr': personality_score(ypred['agr'], ytest['agr']),
+            'neu': personality_score(ypred['neu'], ytest['neu'])
+        }
+        if save:
+            pd.to_pickle(eval_results, 'evaluation_results.pkl')
+
+        print("The age accuracy is: {}\n \
+              The gender accuracy is: {}\n \
+              The ope mse is: {}\n)\
+              The con mse is: {}\n)\
+              The ext mse is: {}\n)\
+              The agr mse is: {}\n)\
+              The neu mse is: {}\n".format(eval_results['age'],
+                                           eval_results['gender'],
+                                           eval_results['ope'],
+                                           eval_results['con'],
+                                           eval_results['ext'],
+                                           eval_results['agr'],
+                                           eval_results['neu'],))
 
     def save(self, output_path):
         joblib.dump(self, output_path)
