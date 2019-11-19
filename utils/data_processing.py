@@ -79,7 +79,7 @@ def parse_image_data(image_file, profile_data, is_train):
         if is_train:
             y.append(row.gender)
     X = pd.DataFrame(X)
-    X = X.drop(labels=id_col)
+    X = X.drop(columns=id_col)
     if is_train:
         return (X, y)
     return (X,)
