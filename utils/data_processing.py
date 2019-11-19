@@ -100,17 +100,14 @@ def parse_input(root, is_train=True):
     if is_train:
         # need to explicitly construct this as we don't have equal number of
         # face data as profiles
-        y = {
-            'age': profile_data['age'].apply(lambda x: age_to_age_group(x)),
-            'gender': profile_data['gender'],
-            'ope': profile_data['ope'],
-            'con': profile_data['con'],
-            'ext': profile_data['ext'],
-            'agr': profile_data['agr'],
-            'neu': profile_data['neu'],
-        }
+        y = process_labels(profile_data)
         return X, y
     return X
+
+def process_labels(profile_data):
+    profile_data['age'].apply(lambda x: age_to_age_group(x)),
+    profile_data.filter(items=['age', 'gender', 'ope', 'con', 'ext', 'agr', 'neu'])
+    return profile_data
 
 def parse_output(pred_df):
     pred_df['gender'] = pred_df['gender'].apply(lambda x: gender_id_to_name(x))
