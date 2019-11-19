@@ -51,7 +51,7 @@ def train(input_path, output_path, model_name, model_eval, debug_mode):
     os.makedirs(output_path, exist_ok=True)
     X, y = parse_input(input_path)
     if debug_mode:
-        X,_, y,_ = split_data(split=0.95)
+        X,_, y,_ = split_data(X,y, split=0.95)
     model = MODEL_MAPPING[model_name]
 
     if model_eval:
