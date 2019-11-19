@@ -1,37 +1,8 @@
 import os
 
 import pandas as pd
-from sklearn.preprocessing import StandardScaler, MinMaxScaler
-
-from utils.label_mapping import age_to_age_group, gender_id_to_name
-
-
-def remove_empty_data(input_data, profile_data):
-    filtered_images = input_data[input_data.userId.isin(profile_data.userid)]
-    non_empty = filtered_images.dropna()
-    summary = non_empty.describe()
-    # iterate and find columns where min, max and mean are all same
-    irrelevant_columns = []
-    for c in summary.columns:
-        col_stats = summary[c]
-        if col_stats['min'] == col_stats['mean'] or col_stats['max'] == col_stats['mean']:
-            irrelevant_columns.append(c)
-    non_empty.drop(labels=irrelevant_columns, axis=1, inplace=True)
-    return non_empty
-
-
-def normalize_splits(X_train, X_test):
-    # standardize train
-    X_std_train, standard_scalers = preprocess(X_train, StandardScaler)
-    # normalize train
-    X_norm_train, norm_scalers = preprocess(X_std_train, MinMaxScaler)
-
-    # standardize test
-    X_std_test, _ = preprocess(X_test, StandardScaler, standard_scalers)
-    # normalize test
-    X_norm_test, _ = preprocess(X_std_test, MinMaxScaler, norm_scalers)
-
-    return X_norm_train, X_norm_test
+from sklearn.model_selection import train_test_split
+from .label_mappings import *
 
 
 def preprocess(df, scaler_type, scalers=None):
@@ -59,18 +30,29 @@ def preprocess(df, scaler_type, scalers=None):
     return ret_df, scalers
 
 
-def parse_text_data(data_path):
-    nrc_data = pd.read_csv(data_path)
-    return nrc_data
+def parse_text_data(root):
+    text_data_liwc = pd.read_csv(os.path.join(root, "Text", "liwc.csv"))
+    text_data_liwc.columns = text_data_liwc.columns.str.lower()
+    text_data_nrc = pd.read_csv(os.path.join(root, "Text", "nrc.csv"))
+    text_data_nrc.columns = text_data_nrc.columns.str.lower()
+
+    # Merge feature sources and drop nans
+    text_data = pd.merge(left=text_data_liwc, right=text_data_nrc, on='userid')
+    text_data = text_data.drop(columns=['userid'])
+    text_data.fillna(dict(text_data.mean(axis=0)), inplace=True)
+
+    return text_data
 
 
 def parse_relational_data(relation_file):
-    data = pd.read_csv(relation_file)
-    return data
+    # TODO
+    return None
+
 
 def parse_image_data(image_file, profile_data, is_train):
     image_data = pd.read_csv(image_file)
     # don't filter for test data
+    # TODO: Why not? ^
     if is_train:
         image_data = image_data[image_data.userId.isin(profile_data.userid)]
         image_data = image_data.dropna()
@@ -82,64 +64,50 @@ def parse_image_data(image_file, profile_data, is_train):
     for row in profile_data.iterrows():
         row = row[1]
         faces = image_data[image_data.userId == row.userid]
-
-        # don't add to train data if features are unavailable
-        if faces.size == 0 and is_train:
-            continue
-
         if faces.size == 0:
-            # Add a row full of None for test data so that we don't miss out some profiles
-            row_data = pd.Series([None] * len(image_cols), index=image_cols)
+            # Add a row full of None so that we don't miss out some profiles
+            row_data = pd.Series([None]*len(image_cols), index=image_cols)
         else:
             # randomly choose the first row for train data when there are multiple faces
             row_data = faces.iloc[0]
 
-        # X.append(row_data.drop(labels=id_col))
         X.append(row_data)
         if is_train:
             y.append(row.gender)
     X = pd.DataFrame(X)
+    X = X.drop(columns=id_col)
     if is_train:
         return (X, y)
     return (X,)
 
 
-def parse_input(root, is_train=True, map_age_to_group=True):
+def parse_input(root, is_train=True):
     profile_data = pd.read_csv(os.path.join(
         root, 'Profile/Profile.csv')).drop('Unnamed: 0', axis=1)
 
     image_file = os.path.join(root, 'Image', 'oxford.csv')
     image_data = parse_image_data(image_file, profile_data, is_train)
 
-    text_root_path = os.path.join(root, 'Text')
-    text_liwc = parse_text_data(os.path.join(text_root_path, "liwc.csv"))
-    text_nrc = parse_text_data(os.path.join(text_root_path, "nrc.csv"))
+    text_data = parse_text_data(root)
 
     relational_file = os.path.join(root, 'Relation', 'Relation.csv')
     relational_data = parse_relational_data(relational_file)
 
     # Keep as dict and delegate to the submodels for dealing with different data sources
     X = {"user_id": profile_data['userid'], "image": image_data[0],
-         "relation": relational_data, "liwc": text_liwc, "nrc": text_nrc}
+         "relation": relational_data, "text": text_data}
 
     if is_train:
         # need to explicitly construct this as we don't have equal number of
         # face data as profiles
-        age_label = profile_data['age']
-        if map_age_to_group:
-            age_label = age_label.apply(lambda x: age_to_age_group(x))
-        y = {
-            'age': age_label,
-            'gender': image_data[1],
-            'ope': profile_data['ope'],
-            'con': profile_data['con'],
-            'ext': profile_data['ext'],
-            'agr': profile_data['agr'],
-            'neu': profile_data['neu'],
-        }
+        y = process_labels(profile_data)
         return X, y
     return X
 
+def process_labels(profile_data):
+    profile_data['age'].apply(lambda x: age_to_age_group(x)),
+    profile_data.filter(items=['age', 'gender', 'ope', 'con', 'ext', 'agr', 'neu'])
+    return profile_data
 
 def parse_output(pred_df):
     pred_df['gender'] = pred_df['gender'].apply(lambda x: gender_id_to_name(x))
@@ -149,4 +117,30 @@ def parse_output(pred_df):
     pred_df['ext'] = pred_df['ext'].apply(lambda x: str(x))
     pred_df['agr'] = pred_df['agr'].apply(lambda x: str(x))
     pred_df['neu'] = pred_df['neu'].apply(lambda x: str(x))
+    pred_df = pred_df.rename(
+        columns={
+            "age": "age_group",
+            "ope": "open",
+            "con": "conscientious",
+            "ext": "extrovert",
+            "agr": "agreeable",
+            "neu": "neurotic"
+        })
     return pred_df
+
+def split_data(X,y, split=0.2):
+
+    train_ix, test_ix = train_test_split(X['user_id'].index, test_size=split)
+    X_image_train, X_image_test = X['image'].iloc[train_ix], X['image'].iloc[test_ix]
+    X_text_train,X_text_test = X['text'].iloc[train_ix], X['text'].iloc[test_ix]
+    X_rel_train,X_rel_test = None, None #X['relation'].iloc[train_ix], X['relation'].iloc[test_ix] # TODO: relational data
+    X_prof_train, X_prof_test = X['user_id'].iloc[train_ix], X['user_id'].iloc[test_ix]
+    ytrain, ytest = y.iloc[train_ix], y.iloc[test_ix]
+
+
+    Xtrain = {"user_id": X_prof_train, "image": X_image_train,
+         "relation": X_rel_train, "text": X_text_train}
+    Xtest = {"user_id": X_prof_test, "image": X_image_test,
+         "relation": X_rel_test, "text": X_text_test}
+
+    return Xtrain, Xtest, ytrain, ytest
