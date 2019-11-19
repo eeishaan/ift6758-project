@@ -3,7 +3,7 @@ import os
 
 from models.final_estimator import SingleTaskEstimator
 from models.gender_estimator import TreeEnsembleEstimator
-from util.data_processing import parse_input
+from utils.data_processing import parse_input
 
 from models.baseline import MajorityClassifier, MeanRegressor
 
@@ -27,7 +27,7 @@ MODEL_MAPPING = {
         agr_reg=MeanRegressor(),
         neu_reg=MeanRegressor()
     ),
-    'age_and_gender': SingleTaskEstimator(
+    'age_only': SingleTaskEstimator(
         age_clf=TreeEnsembleEstimator(),
         gender_clf=TreeEnsembleEstimator(),
         ope_reg=MeanRegressor(),

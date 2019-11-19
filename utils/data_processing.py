@@ -3,7 +3,7 @@ import os
 import pandas as pd
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 
-from util.label_mapping import age_to_age_group, gender_id_to_name
+from utils.label_mapping import age_to_age_group, gender_id_to_name
 
 
 def remove_empty_data(input_data, profile_data):
@@ -59,15 +59,14 @@ def preprocess(df, scaler_type, scalers=None):
     return ret_df, scalers
 
 
-def parse_text_data(root):
-    # TODO
-    return None
+def parse_text_data(data_path):
+    nrc_data = pd.read_csv(data_path)
+    return nrc_data
 
 
 def parse_relational_data(relation_file):
-    # TODO
-    return None
-
+    data = pd.read_csv(relation_file)
+    return data
 
 def parse_image_data(image_file, profile_data, is_train):
     image_data = pd.read_csv(image_file)
@@ -95,7 +94,8 @@ def parse_image_data(image_file, profile_data, is_train):
             # randomly choose the first row for train data when there are multiple faces
             row_data = faces.iloc[0]
 
-        X.append(row_data.drop(labels=id_col))
+        # X.append(row_data.drop(labels=id_col))
+        X.append(row_data)
         if is_train:
             y.append(row.gender)
     X = pd.DataFrame(X)
@@ -104,28 +104,32 @@ def parse_image_data(image_file, profile_data, is_train):
     return (X,)
 
 
-def parse_input(root, is_train=True):
+def parse_input(root, is_train=True, map_age_to_group=True):
     profile_data = pd.read_csv(os.path.join(
         root, 'Profile/Profile.csv')).drop('Unnamed: 0', axis=1)
 
     image_file = os.path.join(root, 'Image', 'oxford.csv')
     image_data = parse_image_data(image_file, profile_data, is_train)
 
-    text_root = parse_text_data(os.path.join(root, 'Text'))
-    text_data = parse_text_data(text_root)
+    text_root_path = os.path.join(root, 'Text')
+    text_liwc = parse_text_data(os.path.join(text_root_path, "liwc.csv"))
+    text_nrc = parse_text_data(os.path.join(text_root_path, "nrc.csv"))
 
     relational_file = os.path.join(root, 'Relation', 'Relation.csv')
     relational_data = parse_relational_data(relational_file)
 
     # Keep as dict and delegate to the submodels for dealing with different data sources
     X = {"user_id": profile_data['userid'], "image": image_data[0],
-         "relation": relational_data, "text": text_data}
+         "relation": relational_data, "liwc": text_liwc, "nrc": text_nrc}
 
     if is_train:
         # need to explicitly construct this as we don't have equal number of
         # face data as profiles
+        age_label = profile_data['age']
+        if map_age_to_group:
+            age_label = age_label.apply(lambda x: age_to_age_group(x))
         y = {
-            'age': profile_data['age'].apply(lambda x: age_to_age_group(x)),
+            'age': age_label,
             'gender': image_data[1],
             'ope': profile_data['ope'],
             'con': profile_data['con'],

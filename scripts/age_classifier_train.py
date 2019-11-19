@@ -17,9 +17,10 @@ from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis as QDA, 
 from sklearn.svm import SVC
 from sklearn.utils import compute_sample_weight
 
-from util.data_processing import normalize_splits, remove_empty_data
-from util.k_fold import k_fold
-from util.label_mapping import age_to_age_group, age_group_to_category_id
+from scripts.age_regressor_train import split_train_val_test
+from utils.data_processing import normalize_splits, remove_empty_data
+from utils.k_fold import k_fold
+from utils.label_mapping import age_to_age_group, age_group_to_category_id
 
 
 def eval_model(model, train_data, test_data, sample_weight=None):
@@ -63,6 +64,21 @@ AGE_SAMPLE_WEIGHT = {
 # AGE_ID_SAMPLE_WEIGHT = {
 #     'xx-24': 4244, '25-34': 1816, '35-49': 822, '50-xx': 292,
 # }
+def eval(X, y, models, normalize_splits_func, eval_model_func):
+    method_stats = {}
+    (X_train, y_train), (X_test, y_test) = split_train_val_test(X, y, test_size=0.2)
+
+    # X_train, X_test = normalize_splits_func(X_train, X_test)
+    train_data = (X_train, y_train)
+    test_data = (X_test, y_test)
+    for m in models:
+        ret = eval_model_func(m, train_data, test_data)
+        m_name = type(m).__name__
+        if m_name not in method_stats:
+            method_stats[m_name] = []
+        method_stats[m_name].append([ret['train_acc'], ret['test_acc']])
+
+    print(method_stats)
 
 
 def k_fold_train():
@@ -72,8 +88,7 @@ def k_fold_train():
     image_data = pd.read_csv(os.path.join(DATA_PATH, "Image", "oxford.csv"))
     liwc_data = pd.read_csv(os.path.join(DATA_PATH, "Text", "liwc.csv"))
     nrc_data = pd.read_csv(os.path.join(DATA_PATH, "Text", "nrc.csv"))
-    nrc_data.rename(columns={'anger': 'anger_1'},
-                    inplace=True)
+    nrc_data.rename(columns={'anger': 'anger_1'}, inplace=True)
     input_data = image_data.join(liwc_data.set_index('userId'), on="userId")
     input_data = input_data.join(nrc_data.set_index('userId'), on="userId")
 
@@ -107,22 +122,22 @@ def k_fold_train():
     # method_params = [{}, {}, {'solver': 'newton-cg'}, {}, {'gamma': 'auto'}]
     # method_params = [{"n_estimators": 100}, {"n_estimators": 100}, {"n_estimators": 100}]
     methods = [
-        # RandomForestClassifier(n_estimators=100),
-        # ExtraTreesClassifier(n_estimators=100),
-        # GradientBoostingClassifier(n_estimators=100),
-        VotingClassifier(
-            estimators=[
-                ('a', RandomForestClassifier(n_estimators=50)),
-                ('b', ExtraTreesClassifier(n_estimators=50)),
-                ('c', GradientBoostingClassifier(n_estimators=100))],
-            weights=(1, 2, 1),
-            voting='hard',
-            n_jobs=4
-        )
-    ]
+        RandomForestClassifier(n_estimators=50),
+        ExtraTreesClassifier(n_estimators=50),
+        GradientBoostingClassifier(n_estimators=1000),
+    #     VotingClassifier(
+    #         estimators=[
+    #             ('a', RandomForestClassifier(n_estimators=50)),
+    #             ('b', ExtraTreesClassifier(n_estimators=50)),
+    #             ('c', GradientBoostingClassifier(n_estimators=100))],
+    #         weights=(1, 2, 1),
+    #         voting='hard',
+    #         n_jobs=4
+    #     )
+     ]
     X = np.array(X)
     y = np.array(y)
-    k_fold(X, y, methods, normalize_splits, eval_model)
+    eval(X, y, methods, normalize_splits, eval_model)
 
 
 if __name__ == "__main__":

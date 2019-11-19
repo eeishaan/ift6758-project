@@ -3,8 +3,8 @@ import pickle
 import pandas as pd
 import os
 
-from util.data_processing import  remove_empty_data
-from util.label_mapping import age_to_age_group
+from utils.data_processing import  remove_empty_data
+from utils.label_mapping import age_to_age_group
 import numpy as np
 
 
