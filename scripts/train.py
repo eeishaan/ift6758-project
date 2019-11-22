@@ -2,12 +2,13 @@ import argparse
 import os
 import sys
 
+from models.age_estimator import AgeEstimator
+from models.baseline import MeanRegressor, MajorityClassifier
+
 sys.path.append('../')  # TODO fix these imports properly
-from models.baselines import MajorityClassifier, MeanRegressor
 from models.final_estimator import SingleTaskEstimator
 from models.gender_estimator import TreeEnsembleEstimator
 from models.personality_estimators import PersonalityTreeRegressor
-from sklearn.model_selection import train_test_split
 from utils.data_processing import parse_input, split_data
 
 # TODO: Make a model selection script
@@ -34,6 +35,15 @@ MODEL_MAPPING = {
     ),
     'personality_baseline': SingleTaskEstimator(
         age_clf=MajorityClassifier(),
+        gender_clf=TreeEnsembleEstimator(),
+        ope_reg=PersonalityTreeRegressor(),
+        con_reg=PersonalityTreeRegressor(),
+        ext_reg=PersonalityTreeRegressor(),
+        agr_reg=PersonalityTreeRegressor(),
+        neu_reg=PersonalityTreeRegressor()
+    ),
+    'age_baseline': SingleTaskEstimator(
+        age_clf=AgeEstimator(),
         gender_clf=TreeEnsembleEstimator(),
         ope_reg=PersonalityTreeRegressor(),
         con_reg=PersonalityTreeRegressor(),
