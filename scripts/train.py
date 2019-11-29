@@ -3,7 +3,7 @@ import os
 import sys
 
 from models.age_estimator import AgeEstimator
-from models.baseline import MeanRegressor, MajorityClassifier
+from models.baselines import MeanRegressor, MajorityClassifier
 
 sys.path.append('../')  # TODO fix these imports properly
 from models.final_estimator import SingleTaskEstimator
@@ -13,6 +13,15 @@ from utils.data_processing import parse_input, split_data
 
 # TODO: Make a model selection script
 # TODO: Implement custom transformers for image, text, relational data (i.e. modularize notebook code
+
+gender_clf = TreeEnsembleEstimator()
+ope_reg = PersonalityTreeRegressor()
+con_reg = PersonalityTreeRegressor()
+ext_reg = PersonalityTreeRegressor()
+agr_reg = PersonalityTreeRegressor()
+neu_reg = PersonalityTreeRegressor()
+age_clf = AgeEstimator(gender_clf, ope_reg, con_reg, ext_reg, agr_reg, neu_reg, n_estimators=100, pca_components=10)
+
 
 MODEL_MAPPING = {
     'baseline': SingleTaskEstimator(
@@ -42,14 +51,14 @@ MODEL_MAPPING = {
         agr_reg=PersonalityTreeRegressor(),
         neu_reg=PersonalityTreeRegressor()
     ),
-    'age_baseline': SingleTaskEstimator(
-        age_clf=AgeEstimator(),
-        gender_clf=TreeEnsembleEstimator(),
-        ope_reg=PersonalityTreeRegressor(),
-        con_reg=PersonalityTreeRegressor(),
-        ext_reg=PersonalityTreeRegressor(),
-        agr_reg=PersonalityTreeRegressor(),
-        neu_reg=PersonalityTreeRegressor()
+    'age_only': SingleTaskEstimator(
+        age_clf=age_clf,
+        gender_clf=gender_clf,
+        ope_reg=ope_reg,
+        con_reg=con_reg,
+        ext_reg=ext_reg,
+        agr_reg=agr_reg,
+        neu_reg=neu_reg
     )
 }
 

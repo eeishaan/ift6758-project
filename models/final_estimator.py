@@ -32,20 +32,18 @@ class SingleTaskEstimator(BaseEstimator):
         self.gender_clf = gender_clf
 
     def fit(self, X, y):
-        self.age_clf.fit(X, y['age'])
         self.gender_clf.fit(X, y['gender'])
-
         self.ope_reg.fit(X, y['ope'])
         self.con_reg.fit(X, y['con'])
         self.ext_reg.fit(X, y['ext'])
         self.agr_reg.fit(X, y['agr'])
         self.neu_reg.fit(X, y['neu'])
+        self.age_clf.fit(X, y['age'])
 
     def predict(self, X):
         pred_df = pd.DataFrame(index=X['user_id'], columns=[
                                'age', 'gender', 'ope', 'con', 'ext', 'agr', 'neu'])
 
-        pred_df['age'] = self.age_clf.predict(X)
         pred_df['gender'] = self.gender_clf.predict(X)
 
         pred_df['ope'] = self.ope_reg.predict(X)
@@ -53,19 +51,20 @@ class SingleTaskEstimator(BaseEstimator):
         pred_df['ext'] = self.ext_reg.predict(X)
         pred_df['agr'] = self.agr_reg.predict(X)
         pred_df['neu'] = self.neu_reg.predict(X)
+        pred_df['age']= self.age_clf.predict(X)
 
         return pred_df
 
     def eval(self, Xtest, ytest, save=False):
         ypred = self.predict(Xtest)
         eval_results = {
-            'age' : age_score(ypred['age'], ytest['age']),
             'gender' : gender_score(ypred['gender'], ytest['gender']),
             'ope': personality_score(ypred['ope'], ytest['ope']),
             'con': personality_score(ypred['con'], ytest['con']),
             'ext': personality_score(ypred['ext'], ytest['ext']),
             'agr': personality_score(ypred['agr'], ytest['agr']),
-            'neu': personality_score(ypred['neu'], ytest['neu'])
+            'neu': personality_score(ypred['neu'], ytest['neu']),
+            'age': age_score(ypred['age'], ytest['age']),
         }
         if save:
             pd.to_pickle(eval_results, 'evaluation_results.pkl')

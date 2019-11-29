@@ -112,7 +112,7 @@ def parse_input(root, is_train=True):
 
 
 def process_labels(profile_data):
-    profile_data['age'].apply(lambda x: age_to_age_group(x)),
+    profile_data['age'] = profile_data['age'].apply(lambda x: age_to_age_group(x))
     profile_data.filter(items=['age', 'gender', 'ope', 'con', 'ext', 'agr', 'neu'])
     return profile_data
 
