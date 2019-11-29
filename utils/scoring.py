@@ -2,8 +2,6 @@ from sklearn.metrics import accuracy_score, mean_squared_error, confusion_matrix
 
 import numpy as np
 
-from utils.label_mappings import age_to_age_group
-
 
 def age_score(ypred, ytest):
     acc = accuracy_score(ytest, ypred)
@@ -16,7 +14,6 @@ def age_score(ypred, ytest):
 
 def gender_score(ypred, ytest):
     return accuracy_score(ytest, ypred)
-
 
 def personality_score(ypred, ytest):
     return mean_squared_error(ytest, ypred)
