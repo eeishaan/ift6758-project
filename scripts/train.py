@@ -7,7 +7,6 @@ from models.baselines import MajorityClassifier, MeanRegressor
 from models.final_estimator import SingleTaskEstimator
 from models.gender_estimator import TreeEnsembleEstimator
 from models.personality_estimators import PersonalityTreeRegressor
-from sklearn.model_selection import train_test_split
 from utils.data_processing import parse_input, split_data
 
 # TODO: Make a model selection script
@@ -35,11 +34,11 @@ MODEL_MAPPING = {
     'personality_baseline': SingleTaskEstimator(
         age_clf=MajorityClassifier(),
         gender_clf=TreeEnsembleEstimator(),
-        ope_reg=PersonalityTreeRegressor(),
-        con_reg=PersonalityTreeRegressor(),
-        ext_reg=PersonalityTreeRegressor(),
-        agr_reg=PersonalityTreeRegressor(),
-        neu_reg=PersonalityTreeRegressor()
+        ope_reg=PersonalityTreeRegressor(150, 30),
+        con_reg=PersonalityTreeRegressor(20, None),
+        ext_reg=PersonalityTreeRegressor(25, None),
+        agr_reg=PersonalityTreeRegressor(120, 30),
+        neu_reg=PersonalityTreeRegressor(10, 30)
     )
 }
 
@@ -51,7 +50,7 @@ def train(input_path, output_path, model_name, model_eval, debug_mode):
     model = MODEL_MAPPING[model_name]
 
     if model_eval:
-        Xtrain, Xtest, ytrain, ytest = split_data(X,y)
+        Xtrain, Xtest, ytrain, ytest = split_data(X, y)
         model.fit(Xtrain, ytrain)
         model.eval(Xtest, ytest)
     else:
@@ -72,4 +71,5 @@ if __name__ == '__main__':
     parser.add_argument('--debug_mode', type=bool, default=False,
                         help='Use only 5% of samples for testing purposes.')
     args = parser.parse_args()
-    train(args.input_path, args.output_results_path, args.model, args.model_eval, args.debug_mode)
+    train(args.input_path, args.output_results_path,
+          args.model, args.model_eval, args.debug_mode)
