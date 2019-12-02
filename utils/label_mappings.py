@@ -2,6 +2,7 @@ AGE_CATEGORIES = ["xx-24", "25-34", "35-49", "50-xx"]
 
 
 def age_to_age_group(age):
+    age = round(age)
     if age <= 24:
         age_group = AGE_CATEGORIES[0]
     elif age <= 34:
@@ -31,4 +32,4 @@ def age_group_to_category_id(age_group):
 
 
 def category_id_to_age(age_category_id):
-    return AGE_CATEGORIES[age_category_id]
+    return AGE_CATEGORIES[int(age_category_id)]
