@@ -19,9 +19,9 @@ class PersonalityTreeRegressor(BaseEstimator):
         return self.model.predict(X)
 
 class PersonalityMLPRegressor(BaseEstimator):
-    def __init__(self):
+    def __init__(self, hiddens=[10]):
         super(PersonalityMLPRegressor, self).__init__()
-        self.model = make_pipeline(StandardScaler(), MLPRegressor())
+        self.model = make_pipeline(StandardScaler(), MLPRegressor(hidden_layer_sizes=hiddens))
 
     def fit(self, X, y):
         X = X['text']
