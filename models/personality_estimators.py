@@ -1,4 +1,5 @@
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.neural_network import MLPRegressor
 from models.final_estimator import BaseEstimator
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import make_pipeline
@@ -9,6 +10,19 @@ class PersonalityTreeRegressor(BaseEstimator):
         super(PersonalityTreeRegressor, self).__init__()
         self.model = make_pipeline(StandardScaler(), RandomForestRegressor(n_estimators=n_estimators))
     
+    def fit(self, X, y):
+        X = X['text']
+        self.model.fit(X, y)
+
+    def predict(self, X):
+        X = X['text']
+        return self.model.predict(X)
+
+class PersonalityMLPRegressor(BaseEstimator):
+    def __init__(self):
+        super(PersonalityMLPRegressor, self).__init__()
+        self.model = make_pipeline(StandardScaler(), MLPRegressor())
+
     def fit(self, X, y):
         X = X['text']
         self.model.fit(X, y)

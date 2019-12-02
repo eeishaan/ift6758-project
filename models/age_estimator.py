@@ -1,4 +1,4 @@
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from models.final_estimator import BaseEstimator
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import make_pipeline
@@ -10,7 +10,7 @@ from sklearn.externals import joblib
 class AgeClassifier(BaseEstimator):
     def __init__(self, n_estimators=200):
         super(AgeClassifier, self).__init__()
-        self.clf = make_pipeline(StandardScaler(), RandomForestClassifier(n_estimators=n_estimators))
+        self.clf = make_pipeline(StandardScaler(), GradientBoostingClassifier(n_estimators=n_estimators))
         self.fallback_clf = MajorityClassifier()
 
     def fit(self, X, y):
