@@ -19,7 +19,8 @@ class AgeEstimator(BaseEstimator):
                  gender_clf=None, ope_reg=None,
                  con_reg=None, ext_reg=None, agr_reg=None, neu_reg=None, ):
         super().__init__()
-        self.related_model = [gender_clf, ope_reg, con_reg, ext_reg, agr_reg, neu_reg]
+        # self.related_model = [gender_clf, ope_reg, con_reg, ext_reg, agr_reg, neu_reg]
+        self.related_model = []
         estimators = []
         for i in range(num_ensemble):
             estimators.append(
@@ -63,19 +64,19 @@ class AgeEstimator(BaseEstimator):
 
         text_data = X["text"]
         text_data = self._normalize_data(text_data)
-        if is_train_mode:
-            self.text_pca.fit(text_data)
-            # print(f"text_pca explained ratio {self.text_pca.explained_variance_ratio_.cumsum()}")
-            self.image_pca.fit(image_data)
-            # print(f"image_pca explained ratio {self.image_pca.explained_variance_ratio_.cumsum()}")
-
-        text_data = self.text_pca.transform(text_data)
-        image_data = self.image_pca.transform(image_data)
+        # if is_train_mode:
+        #     self.text_pca.fit(text_data)
+        #     print(f"text_pca explained ratio {self.text_pca.explained_variance_ratio_.cumsum()}")
+        #     self.image_pca.fit(image_data)
+        #     # print(f"image_pca explained ratio {self.image_pca.explained_variance_ratio_.cumsum()}")
+        #
+        # text_data = self.text_pca.transform(text_data)
+        # image_data = self.image_pca.transform(image_data)
 
         input_data = pd.concat([
-            pd.DataFrame(image_data),
+            pd.DataFrame(image_data.values),
             pd.DataFrame(relation_data),
-            pd.DataFrame(text_data)
+            pd.DataFrame(text_data.values)
         ], axis=1)
         input_data = self.add_other_task_prediction(X, input_data)
         return input_data
