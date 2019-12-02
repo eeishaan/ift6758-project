@@ -18,10 +18,6 @@ def age_score(ypred, ytest, age_to_group):
     else:
         ytest = age_id_to_age_group_func(ytest)
     acc = accuracy_score(ytest, ypred)
-    cm = confusion_matrix(ytest, ypred)
-    cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
-    print(cm.diagonal())
-
     return acc
 
 
