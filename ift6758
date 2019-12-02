@@ -10,9 +10,8 @@ from sklearn.externals import joblib
 
 from utils.data_processing import parse_input, parse_output
 
-model_path = "trained_models/personality_baseline.pkl"
+model_path = "trained_models/final.pkl"
 TEAM_NAME = "user17"
-
 
 def evaluate(test_data_dir, results_output_dir):
     os.makedirs(results_output_dir, exist_ok=True)
@@ -22,7 +21,7 @@ def evaluate(test_data_dir, results_output_dir):
     pred_df = model.predict(test_data)
     pred_df = parse_output(pred_df)
 
-    for _, user_id in test_data['user_id'].iteritems():
+    for user_id in test_data['user_id']:
         pred = {}
         pred["id"] = str(user_id)
         pred.update(dict(pred_df.loc[user_id]))

@@ -7,6 +7,8 @@ from sklearn.ensemble import VotingClassifier
 from sklearn.externals import joblib
 
 from sklearn.preprocessing import StandardScaler
+
+from utils.label_mappings import category_id_to_age
 from xgboost import XGBClassifier
 
 from models.final_estimator import BaseEstimator
@@ -32,6 +34,7 @@ class AgeEstimator(BaseEstimator):
         self.text_pca = TruncatedSVD(n_components=text_svd_components)
         self.image_pca = TruncatedSVD(n_components=image_svd_components)
         self.std_scaler = StandardScaler()
+        self.age_idx_to_age_group_func = np.vectorize(category_id_to_age)
 
     def fit(self, X, y=None):
         X = self._preprocess(X, is_train_mode=True)
@@ -42,6 +45,7 @@ class AgeEstimator(BaseEstimator):
     def predict(self, X):
         X = self._preprocess(X, is_train_mode=False)
         pred = self.clf.predict(X.values)
+        pred = self.age_idx_to_age_group_func(pred)
         return pred
 
     def _normalize_data(self, data):
