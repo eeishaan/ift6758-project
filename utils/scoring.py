@@ -1,6 +1,10 @@
-from sklearn.metrics import accuracy_score, mean_squared_error, confusion_matrix
+import math
+
+from sklearn.metrics import confusion_matrix
 
 import numpy as np
+
+from sklearn.metrics import accuracy_score, mean_squared_error
 
 
 def age_score(ypred, ytest):
@@ -15,5 +19,6 @@ def age_score(ypred, ytest):
 def gender_score(ypred, ytest):
     return accuracy_score(ytest, ypred)
 
+
 def personality_score(ypred, ytest):
-    return mean_squared_error(ytest, ypred)
+    return math.sqrt(mean_squared_error(ytest, ypred))

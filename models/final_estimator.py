@@ -19,7 +19,6 @@ class BaseEstimator(abc.ABC):
         joblib.dump(self, output_path)
 
 
-
 class SingleTaskEstimator(BaseEstimator):
     def __init__(self, gender_clf, age_clf, ope_reg, con_reg, ext_reg, agr_reg, neu_reg):
         # Independent task models
@@ -58,7 +57,7 @@ class SingleTaskEstimator(BaseEstimator):
     def eval(self, Xtest, ytest, save=False):
         ypred = self.predict(Xtest)
         eval_results = {
-            'gender' : gender_score(ypred['gender'], ytest['gender']),
+            'gender': gender_score(ypred['gender'], ytest['gender']),
             'ope': personality_score(ypred['ope'], ytest['ope']),
             'con': personality_score(ypred['con'], ytest['con']),
             'ext': personality_score(ypred['ext'], ytest['ext']),
@@ -71,17 +70,17 @@ class SingleTaskEstimator(BaseEstimator):
 
         print("The age accuracy is: {}\n \
               The gender accuracy is: {}\n \
-              The ope mse is: {}\n)\
-              The con mse is: {}\n)\
-              The ext mse is: {}\n)\
-              The agr mse is: {}\n)\
-              The neu mse is: {}\n".format(eval_results['age'],
-                                           eval_results['gender'],
-                                           eval_results['ope'],
-                                           eval_results['con'],
-                                           eval_results['ext'],
-                                           eval_results['agr'],
-                                           eval_results['neu'],))
+              The ope rmse is: {}\n)\
+              The con rmse is: {}\n)\
+              The ext rmse is: {}\n)\
+              The agr rmse is: {}\n)\
+              The neu rmse is: {}\n".format(eval_results['age'],
+                                            eval_results['gender'],
+                                            eval_results['ope'],
+                                            eval_results['con'],
+                                            eval_results['ext'],
+                                            eval_results['agr'],
+                                            eval_results['neu'],))
 
     def save(self, output_path):
         joblib.dump(self, output_path)
