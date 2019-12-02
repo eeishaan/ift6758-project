@@ -13,7 +13,7 @@ from models.final_estimator import BaseEstimator
 
 
 class AgeEstimator(BaseEstimator):
-    def __init__(self, n_estimators=100, text_svd_components=50, image_svd_components=3, num_ensemble=3,
+    def __init__(self, n_estimators=1000, text_svd_components=50, image_svd_components=3, num_ensemble=3,
                  gender_clf=None, ope_reg=None,
                  con_reg=None, ext_reg=None, agr_reg=None, neu_reg=None, ):
         super().__init__()
@@ -21,7 +21,7 @@ class AgeEstimator(BaseEstimator):
         estimators = []
         for i in range(num_ensemble):
             estimators.append(
-                (str(i), XGBClassifier(n_estimators=n_estimators, n_jobs=10, learning_rate=0.1, max_depth=5,
+                (str(i), XGBClassifier(n_estimators=n_estimators, n_jobs=10, learning_rate=0.01, max_depth=3,
                                        colsample_bytree=1)))
 
         self.clf = VotingClassifier(
