@@ -2,11 +2,12 @@ import argparse
 import os
 import sys
 
+sys.path.append('../')  # TODO fix these imports properly
+
 from models.age_estimator import AgeEstimator
 from models.baselines import MeanRegressor, MajorityClassifier
 from utils.k_fold import k_fold
 
-sys.path.append('../')  # TODO fix these imports properly
 from models.final_estimator import SingleTaskEstimator, MultiTaskEstimator
 from models.gender_estimator import TreeEnsembleEstimator
 from models.personality_estimators import PersonalityTreeRegressor, MultiTaskRegressor
