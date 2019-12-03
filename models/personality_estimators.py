@@ -1,9 +1,9 @@
 from sklearn.decomposition import PCA
 from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.externals import joblib
-from sklearn.linear_model import MultiTaskElasticNetCV
+from sklearn.linear_model import MultiTaskElasticNet
 from sklearn.pipeline import make_pipeline
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
 from models.final_estimator import BaseEstimator
 
@@ -33,7 +33,12 @@ class PersonalityTreeRegressor(BaseEstimator):
 class MultiTaskRegressor(BaseEstimator):
     def __init__(self):
         super(MultiTaskRegressor, self).__init__()
-        self.model = MultiTaskElasticNetCV(n_jobs=-1, cv=5)
+        self.model = make_pipeline(
+            StandardScaler(),
+            MinMaxScaler(),
+            PCA(n_components=30),
+            MultiTaskElasticNet()
+        )
 
     def fit(self, X, y):
         X = X['text']
