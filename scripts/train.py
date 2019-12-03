@@ -7,9 +7,9 @@ from models.baselines import MeanRegressor, MajorityClassifier
 from utils.k_fold import k_fold
 
 sys.path.append('../')  # TODO fix these imports properly
-from models.final_estimator import SingleTaskEstimator
+from models.final_estimator import SingleTaskEstimator, MultiTaskEstimator
 from models.gender_estimator import TreeEnsembleEstimator
-from models.personality_estimators import PersonalityTreeRegressor
+from models.personality_estimators import PersonalityTreeRegressor, MultiTaskRegressor
 from utils.data_processing import parse_input, split_data
 
 # TODO: Make a model selection script
@@ -23,8 +23,14 @@ agr_reg = PersonalityTreeRegressor(120, 30)
 neu_reg = PersonalityTreeRegressor(10, 30)
 age_clf = AgeEstimator(gender_clf=gender_clf, ope_reg=ope_reg, con_reg=con_reg, ext_reg=ext_reg, agr_reg=agr_reg,
                        neu_reg=neu_reg)
+mult_per_reg = MultiTaskRegressor()
 
 MODEL_MAPPING = {
+    'multitask': MultiTaskEstimator(
+        age_clf=age_clf,
+        gender_clf=gender_clf,
+        per_reg=mult_per_reg,
+    ),
     'final': SingleTaskEstimator(
         age_clf=age_clf,
         gender_clf=gender_clf,
