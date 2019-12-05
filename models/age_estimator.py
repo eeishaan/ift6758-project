@@ -21,6 +21,7 @@ class AgeEstimator(BaseEstimator):
         text_svd_components=50,
         image_svd_components=3,
         num_ensemble=3,
+        normalize_likeid_age_distrbn=True,
         gender_clf=None,
         ope_reg=None,
         con_reg=None,
@@ -51,8 +52,19 @@ class AgeEstimator(BaseEstimator):
         self.image_pca = TruncatedSVD(n_components=image_svd_components)
         self.std_scaler = StandardScaler()
         self.age_idx_to_age_group_func = np.vectorize(category_id_to_age)
+        self.normalize_likeid_age_distrbn = normalize_likeid_age_distrbn
 
     def fit(self, X, y=None):
+        like_age = pd.merge(
+            X["relation"], y.to_frame(), left_index=True, right_index=True
+        )[["like_id", "age"]]
+        self.like_ages_counts = (
+            like_age.groupby(["like_id", "age"]).size().unstack(fill_value=0)
+        )
+        if self.normalize_likeid_age_distrbn:
+            self.like_ages_counts = self.like_ages_counts.div(
+                self.like_ages_counts.sum(axis=1), axis=0
+            )
         X = self._preprocess(X, is_train_mode=True)
         sample_weight = None
         self.clf.fit(X.values, y, sample_weight=sample_weight)
@@ -76,8 +88,24 @@ class AgeEstimator(BaseEstimator):
         image_data = image_data.fillna(image_data.mean())
         image_data = self._normalize_data(image_data)
 
-        relation_data = self.get_num_likes(X["relation"])
-        relation_data = self.std_scaler.fit_transform(relation_data)
+        like_count_data = self.get_num_likes(X["relation"])
+        like_count_data = self.std_scaler.fit_transform(like_count_data)
+        # mean of inverse age distributions for page likes
+        mean_inverse_age_ditrbn_data = (
+            pd.merge(
+                X["relation"],
+                self.like_ages_counts,
+                left_on="like_id",
+                right_index=True,
+            )
+            .iloc[:, -4:]
+            .groupby("userId")
+            .mean()
+        )
+        # rearrange the index as per the input
+        mean_inverse_age_ditrbn_data = mean_inverse_age_ditrbn_data.reindex(
+            X["image"].index
+        )
 
         text_data = X["text"]
         text_data = self._normalize_data(text_data)
@@ -93,7 +121,8 @@ class AgeEstimator(BaseEstimator):
         input_data = pd.concat(
             [
                 pd.DataFrame(image_data.values),
-                pd.DataFrame(relation_data),
+                pd.DataFrame(like_count_data),
+                pd.DataFrame(mean_inverse_age_ditrbn_data.values),
                 pd.DataFrame(text_data.values),
             ],
             axis=1,
