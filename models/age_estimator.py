@@ -15,29 +15,56 @@ from models.final_estimator import BaseEstimator
 
 
 class AgeEstimator(BaseEstimator):
-    def __init__(self, n_estimators=1000, text_svd_components=50, image_svd_components=3, num_ensemble=3,
-                 gender_clf=None, ope_reg=None,
-                 con_reg=None, ext_reg=None, agr_reg=None, neu_reg=None, ):
+    def __init__(
+        self,
+        n_estimators=1000,
+        text_svd_components=50,
+        image_svd_components=3,
+        num_ensemble=3,
+        normalize_likeid_age_distrbn=True,
+        gender_clf=None,
+        ope_reg=None,
+        con_reg=None,
+        ext_reg=None,
+        agr_reg=None,
+        neu_reg=None,
+    ):
         super().__init__()
         # self.related_model = [gender_clf, ope_reg, con_reg, ext_reg, agr_reg, neu_reg]
         self.related_model = []
         estimators = []
         for i in range(num_ensemble):
             estimators.append(
-                (str(i), XGBClassifier(n_estimators=n_estimators, n_jobs=10, learning_rate=0.01, max_depth=3,
-                                       colsample_bytree=1)))
+                (
+                    str(i),
+                    XGBClassifier(
+                        n_estimators=n_estimators,
+                        n_jobs=10,
+                        learning_rate=0.01,
+                        max_depth=3,
+                        colsample_bytree=1,
+                    ),
+                )
+            )
 
-        self.clf = VotingClassifier(
-            estimators=estimators,
-            voting='hard',
-            n_jobs=1
-        )
+        self.clf = VotingClassifier(estimators=estimators, voting="hard", n_jobs=1)
         self.text_pca = TruncatedSVD(n_components=text_svd_components)
         self.image_pca = TruncatedSVD(n_components=image_svd_components)
         self.std_scaler = StandardScaler()
         self.age_idx_to_age_group_func = np.vectorize(category_id_to_age)
+        self.normalize_likeid_age_distrbn = normalize_likeid_age_distrbn
 
     def fit(self, X, y=None):
+        like_age = pd.merge(
+            X["relation"], y.to_frame(), left_index=True, right_index=True
+        )[["like_id", "age"]]
+        self.like_ages_counts = (
+            like_age.groupby(["like_id", "age"]).size().unstack(fill_value=0)
+        )
+        if self.normalize_likeid_age_distrbn:
+            self.like_ages_counts = self.like_ages_counts.div(
+                self.like_ages_counts.sum(axis=1), axis=0
+            )
         X = self._preprocess(X, is_train_mode=True)
         sample_weight = None
         self.clf.fit(X.values, y, sample_weight=sample_weight)
@@ -51,7 +78,9 @@ class AgeEstimator(BaseEstimator):
 
     def _normalize_data(self, data):
         scaled_features = self.std_scaler.fit_transform(data.values)
-        scaled_features_df = pd.DataFrame(scaled_features, index=data.index, columns=data.columns)
+        scaled_features_df = pd.DataFrame(
+            scaled_features, index=data.index, columns=data.columns
+        )
         return scaled_features_df
 
     def _preprocess(self, X, is_train_mode=False):
@@ -59,8 +88,24 @@ class AgeEstimator(BaseEstimator):
         image_data = image_data.fillna(image_data.mean())
         image_data = self._normalize_data(image_data)
 
-        relation_data = self.get_num_likes(X["relation"])
-        relation_data = self.std_scaler.fit_transform(relation_data)
+        like_count_data = self.get_num_likes(X["relation"])
+        like_count_data = self.std_scaler.fit_transform(like_count_data)
+        # mean of inverse age distributions for page likes
+        mean_inverse_age_ditrbn_data = (
+            pd.merge(
+                X["relation"],
+                self.like_ages_counts,
+                left_on="like_id",
+                right_index=True,
+            )
+            .iloc[:, -4:]
+            .groupby("userId")
+            .mean()
+        )
+        # rearrange the index as per the input
+        mean_inverse_age_ditrbn_data = mean_inverse_age_ditrbn_data.reindex(
+            X["image"].index
+        )
 
         text_data = X["text"]
         text_data = self._normalize_data(text_data)
@@ -73,11 +118,15 @@ class AgeEstimator(BaseEstimator):
         # text_data = self.text_pca.transform(text_data)
         # image_data = self.image_pca.transform(image_data)
 
-        input_data = pd.concat([
-            pd.DataFrame(image_data.values),
-            pd.DataFrame(relation_data),
-            pd.DataFrame(text_data.values)
-        ], axis=1)
+        input_data = pd.concat(
+            [
+                pd.DataFrame(image_data.values),
+                pd.DataFrame(like_count_data),
+                pd.DataFrame(mean_inverse_age_ditrbn_data.values),
+                pd.DataFrame(text_data.values),
+            ],
+            axis=1,
+        )
         input_data = self.add_other_task_prediction(X, input_data)
         return input_data
 
@@ -93,7 +142,7 @@ class AgeEstimator(BaseEstimator):
         joblib.dump(self, output_path)
 
     def get_num_likes(self, relation_data):
-        relation_data_group = relation_data.groupby(['userId'])
+        relation_data_group = relation_data.groupby(["userId"])
         like_count_per_user = np.zeros(shape=(len(relation_data_group), 1))
         for i, (user_id, relation_data) in enumerate(relation_data_group):
             like_count_per_user[i] = len(relation_data["like_id"])
