@@ -22,6 +22,7 @@ class AgeEstimator(BaseEstimator):
         image_svd_components=3,
         num_ensemble=3,
         normalize_likeid_age_distrbn=True,
+        minimum_like_counts=3,
         gender_clf=None,
         ope_reg=None,
         con_reg=None,
@@ -53,14 +54,18 @@ class AgeEstimator(BaseEstimator):
         self.std_scaler = StandardScaler()
         self.age_idx_to_age_group_func = np.vectorize(category_id_to_age)
         self.normalize_likeid_age_distrbn = normalize_likeid_age_distrbn
+        self.minimum_like_counts = minimum_like_counts
 
     def fit(self, X, y=None):
         like_age = pd.merge(
             X["relation"], y.to_frame(), left_index=True, right_index=True
         )[["like_id", "age"]]
-        self.like_ages_counts = (
+        like_ages_counts = (
             like_age.groupby(["like_id", "age"]).size().unstack(fill_value=0)
         )
+        self.like_ages_counts = like_ages_counts[
+            like_ages_counts.sum(axis=1) >= self.minimum_like_counts
+        ]
         if self.normalize_likeid_age_distrbn:
             self.like_ages_counts = self.like_ages_counts.div(
                 self.like_ages_counts.sum(axis=1), axis=0
