@@ -22,7 +22,7 @@ class AgeEstimator(BaseEstimator):
         image_svd_components=3,
         num_ensemble=3,
         normalize_likeid_age_distrbn=True,
-        minimum_like_counts=3,
+        minimum_like_counts=5,
         gender_clf=None,
         ope_reg=None,
         con_reg=None,

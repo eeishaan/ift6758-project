@@ -73,7 +73,7 @@ def train(input_path, output_path, model_name, model_eval, k_fold_mode):
     model = MODEL_MAPPING[model_name]
 
     if k_fold_mode:
-        k_fold(X, y, model, age_to_group, n_splits=10)
+        k_fold(X, y, model, age_to_group, n_splits=5)
         return
     if model_eval:
         Xtrain, Xtest, ytrain, ytest = split_data(X, y)
