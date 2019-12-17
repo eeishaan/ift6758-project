@@ -71,7 +71,7 @@ def parse_image_data(image_file, profile_data, is_train):
         faces = image_data[image_data.userId == profile_data.index[i]]
         if faces.size == 0:
             # Add a row full of None so that we don't miss out some profiles
-            row_data = pd.Series([None] * len(image_cols), index=image_cols)
+            row_data = pd.Series([profile_data.index[i]] + [None] * (len(image_cols) - 1), index=image_cols)
         else:
             # randomly choose the first row for train data when there are multiple faces
             row_data = faces.iloc[0]
