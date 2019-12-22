@@ -7,12 +7,22 @@ from utils.label_mappings import gender_id_to_name, age_to_age_group
 
 
 def compute_most_frequent(labels):
+    """
+    Gets the most frequent label type from a list of labels
+    :param labels: List of labels
+    :return:
+    """
     occurence_count = Counter(labels)
     most_common = occurence_count.most_common(1)[0][0]
     return most_common
 
 
 def compute_mean(labels):
+    """
+    From a set a label values, computes the mean
+    :param labels: List of numerical values of labels
+    :return: The mean of labels values
+    """
     total = 0
     for element in labels:
         total += element
@@ -21,6 +31,12 @@ def compute_mean(labels):
 
 
 def compute_majority_average_baseline(profile_data_path, output_results_path=None):
+    """
+    Computes most frequent label for the age and gender and the mean values for the personality traits.
+    :param profile_data_path: Labels data path
+    :param output_results_path: If provided, save the results into a json file to this path
+    :return:
+    """
     profile_data = pd.read_csv(profile_data_path)
 
     gender_names = [gender_id_to_name(gender_id) for gender_id in profile_data["gender"]]
@@ -61,6 +77,11 @@ def compute_majority_average_baseline(profile_data_path, output_results_path=Non
 
 
 if __name__ == "__main__":
+    """
+    Simple script that computes the baseline values for each task
+    Most frequent label for the age and gender
+    Mean values for the personality traits
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument('--profile_data_path', type=str, default=None,
                         help='Profile mappings path')

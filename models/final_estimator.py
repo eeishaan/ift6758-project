@@ -6,15 +6,34 @@ from utils.scoring import *
 
 
 class BaseEstimator(abc.ABC):
+    """
+    Base class for all estimators
+    """
     @abc.abstractmethod
     def fit(self, X, y):
+        """
+        Fits the model
+        :param X: input dataframe
+        :param y: labels dataframe
+        :return:
+        """
         pass
 
     @abc.abstractmethod
     def predict(self, X):
+        """
+        Predicts the values with given input data
+        :param X: input dataframe
+        :return: list of predicted values
+        """
         pass
 
     def save(self, output_path):
+        """
+        Saves the model
+        :param output_path: model output location
+        :return:
+        """
         joblib.dump(self, output_path)
 
 
@@ -22,6 +41,16 @@ class SingleTaskEstimator(BaseEstimator):
     def __init__(
         self, gender_clf, age_clf, ope_reg, con_reg, ext_reg, agr_reg, neu_reg
     ):
+        """
+        Model composed of specific sub model for each task
+        :param gender_clf: Gender classifier model of type BaseEstimator
+        :param age_clf: Age classifier model  of type BaseEstimator
+        :param ope_reg: Openness regression model  of type BaseEstimator
+        :param con_reg: Conscientiousness regression model of type BaseEstimator
+        :param ext_reg: Extraversion regression model of type BaseEstimator
+        :param agr_reg: Agreeableness regression model of type BaseEstimator
+        :param neu_reg: Neuroticism regression model of type BaseEstimator
+        """
         # Independent task models
         self.neu_reg = neu_reg
         self.agr_reg = agr_reg
@@ -32,6 +61,12 @@ class SingleTaskEstimator(BaseEstimator):
         self.gender_clf = gender_clf
 
     def fit(self, X, y):
+        """
+        Fits the model
+        :param X: input dataframe
+        :param y: labels dataframe
+        :return:
+        """
         self.gender_clf.fit(X, y["gender"])
         print("Trained gender classifier.")
         self.ope_reg.fit(X, y["ope"])
@@ -48,6 +83,11 @@ class SingleTaskEstimator(BaseEstimator):
         print("Trained age classifier.")
 
     def predict(self, X):
+        """
+        Predicts the values with given input data
+        :param X: input dataframe
+        :return: list of predicted values
+        """
         pred_df = pd.DataFrame(
             index=X["user_id"],
             columns=["age", "gender", "ope", "con", "ext", "agr", "neu"],
@@ -64,6 +104,14 @@ class SingleTaskEstimator(BaseEstimator):
         return pred_df
 
     def eval(self, Xtest, ytest, save=False, age_to_group=True):
+        """
+        Evaluates the model on a given test set
+        :param Xtest: test input data
+        :param ytest: labels data for all task
+        :param save: if True, saves the evalutaion results
+        :param age_to_group: if True, converts age values to category names
+        :return: evaluation results for all tasks as a dictionary
+        """
         ypred = self.predict(Xtest)
         eval_results = {
             "gender": gender_score(ypred["gender"], ytest["gender"]),
@@ -95,6 +143,3 @@ class SingleTaskEstimator(BaseEstimator):
             )
         )
         return eval_results
-
-    def save(self, output_path):
-        joblib.dump(self, output_path)

@@ -3,7 +3,6 @@ import sys
 import numpy as np
 from sklearn.ensemble import (ExtraTreesClassifier, GradientBoostingClassifier,
                               RandomForestClassifier, VotingClassifier)
-from sklearn.externals import joblib
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from sklearn.pipeline import make_pipeline
 
@@ -11,9 +10,12 @@ sys.path.append('../')  # TODO fix these imports properly
 from models.final_estimator import BaseEstimator
 
 
-
 class TreeEnsembleEstimator(BaseEstimator):
     def __init__(self):
+        """
+        Final classifier used for the gender task. The model is a voting classifier composed of a Random Forest
+        classifier, a Extra Trees classifier and a Gradient Boosting classifier.
+        """
         super(TreeEnsembleEstimator, self)
         model = VotingClassifier(
             estimators=[
@@ -27,6 +29,12 @@ class TreeEnsembleEstimator(BaseEstimator):
         self.clf = make_pipeline(StandardScaler(), MinMaxScaler(), model)
 
     def fit(self, X, y=None):
+        """
+        Fits the model
+        :param X: input dataframe
+        :param y: labels dataframe
+        :return:
+        """
         X = X['image']
 
         # filter out non-null rows
@@ -37,6 +45,11 @@ class TreeEnsembleEstimator(BaseEstimator):
         return self
 
     def predict(self, X):
+        """
+         Predicts the categories
+         :param X: input dataframe
+         :return: list of predicted categories
+         """
         X = X['image']
         # if row contains null, we predict 1
         pred = np.ones(shape=(len(X)))
@@ -47,6 +60,3 @@ class TreeEnsembleEstimator(BaseEstimator):
         pred[non_null_rows] = self.clf.predict(X_pred)
 
         return pred
-
-    def save(self, output_path):
-        joblib.dump(self, output_path)

@@ -4,6 +4,16 @@ import math
 
 
 def k_fold(X, y, model, age_to_group, n_splits):
+    """
+    Given a dataset and a model, performs k-fold cross validation and computes
+    the means score with 95% confidence error range
+    :param X: input data
+    :param y: labels
+    :param model: model of type BaseEstimator
+    :param age_to_group: if True, converts age value to its category name
+    :param n_splits: number of folds
+    :return:
+    """
     kf = KFold(n_splits=n_splits)
     kf.get_n_splits(X)
     per_task_results = {'gender': [],

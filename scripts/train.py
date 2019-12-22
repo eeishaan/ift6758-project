@@ -13,18 +13,15 @@ from models.gender_estimator import TreeEnsembleEstimator
 from models.personality_estimators import PersonalityTreeRegressor
 from utils.data_processing import parse_input, split_data
 
-# TODO: Make a model selection script
-# TODO: Implement custom transformers for image, text, relational data (i.e. modularize notebook code
-
 gender_clf = TreeEnsembleEstimator()
 ope_reg = PersonalityTreeRegressor(150, 30)
 con_reg = PersonalityTreeRegressor(20, None)
 ext_reg = PersonalityTreeRegressor(25, None)
 agr_reg = PersonalityTreeRegressor(120, 30)
 neu_reg = PersonalityTreeRegressor(10, 30)
-age_clf = AgeEstimator(gender_clf=gender_clf, ope_reg=ope_reg, con_reg=con_reg, ext_reg=ext_reg, agr_reg=agr_reg,
-                       neu_reg=neu_reg)
+age_clf = AgeEstimator()
 
+# Models configuration definitions:
 MODEL_MAPPING = {
     'final': SingleTaskEstimator(
         age_clf=age_clf,
@@ -67,6 +64,16 @@ MODEL_MAPPING = {
 
 
 def train(input_path, output_path, model_name, model_eval, k_fold_mode):
+    """
+    Create and train a model based on its configuration type
+    Also can performs k-fold cross validations if the k_fold_mode parameter is True
+    :param input_path: Train dataset root folder path
+    :param output_path: Output trained model path
+    :param model_name: Model configuration name. It must be a existing key in the dictionary of models MODEL_MAPPING
+    :param model_eval: If True, splits the data and train on a train test and evaluates the trained model  on a test set
+    :param k_fold_mode: If True, performs k-fold cross validations
+    :return:
+    """
     os.makedirs(output_path, exist_ok=True)
     age_to_group = True
     X, y = parse_input(input_path, age_to_group=age_to_group)
@@ -85,6 +92,11 @@ def train(input_path, output_path, model_name, model_eval, k_fold_mode):
 
 
 if __name__ == '__main__':
+    """
+    Script that trains a model and saved it to the given path.
+    If in k-fold mode, performs k-fold cross-validation 
+    If in eval mode, splits the data and trains the model on a train set and eval on a test set
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument('--input_path', type=str, default=None,
                         help='Input path')
@@ -93,7 +105,8 @@ if __name__ == '__main__':
     parser.add_argument('--model', type=str, default='baseline',
                         help='Specify which model to train')
     parser.add_argument('--model_eval', type=bool, default=False,
-                        help='Whether or not evaluate model on train/test split. False by default. Model will not be saved if set.')
+                        help='Whether or not evaluate model on train/test split. False by default. '
+                             'Model will not be saved if set.')
     parser.add_argument('--k_fold', type=bool, default=False,
                         help='Run k-folding instead of training')
     args = parser.parse_args()
