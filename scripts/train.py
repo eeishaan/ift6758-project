@@ -2,7 +2,7 @@ import argparse
 import os
 import sys
 
-sys.path.append('../')  # TODO fix these imports properly
+sys.path.append('../')
 
 from models.age_estimator import AgeEstimator
 from models.baselines import MeanRegressor, MajorityClassifier

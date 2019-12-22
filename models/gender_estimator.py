@@ -6,7 +6,7 @@ from sklearn.ensemble import (ExtraTreesClassifier, GradientBoostingClassifier,
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from sklearn.pipeline import make_pipeline
 
-sys.path.append('../')  # TODO fix these imports properly
+sys.path.append('../')
 from models.final_estimator import BaseEstimator
 
 
