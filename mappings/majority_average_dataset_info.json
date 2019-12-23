@@ -1,1 +1,9 @@
-{"gender": "female", "age_group": "xx-24", "open": "3.9086905263157825", "conscientious": "3.445616842105264", "extrovert": "3.486857894736829", "agreeable": "3.5839042105263155", "neurotic": "2.7324242105263203"}
+{
+  "gender": "female",
+  "age_group": "xx-24",
+  "open": "3.9086905263157825",
+  "conscientious": "3.445616842105264",
+  "extrovert": "3.486857894736829",
+  "agreeable": "3.5839042105263155",
+  "neurotic": "2.7324242105263203"
+}
