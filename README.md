@@ -17,6 +17,7 @@ Project Organization
     ├── test_results      <- Examples of test prediction results
     ├── trained_model     <- Trained models folder
     ├── utils             <- Utilities used accross the application
+    ├── xgboost           <- Source code of the XGBoost project (https://github.com/dmlc/xgboost) to work around the problem that we cannot install a library on the environment. To be removed in the future if we can install the library.
     ├── ift6758           <- Evaluation script
     └── README.md         <- The top-level README for developers using this project.
 --------
