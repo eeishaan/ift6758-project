@@ -35,3 +35,10 @@ Project Organization
 
 ## Writing Conventions
 * Limit all lines to a maximum of 119 characters. Only exception is when it impact negatively the readibility of a sentence.
+
+## xgboost folder
+Like mentioned in the project structure section, we included the source code of the XGBoost project (https://github.com/dmlc/xgboost) to work around the problem that we cannot install any library on the main environment.
+
+For the evaluation procedure, ignore the code inside the folder named xgboost
+
+This folder should be removed in the future if we can install the library on the main python environment.
